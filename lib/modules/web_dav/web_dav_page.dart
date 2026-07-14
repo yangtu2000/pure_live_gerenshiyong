@@ -5,6 +5,7 @@ import 'package:webdav_client/webdav_client.dart' as webdav;
 import 'package:pure_live/modules/web_dav/web_dav_help.dart';
 import 'package:pure_live/modules/web_dav/webdav_config.dart';
 import 'package:pure_live/modules/web_dav/web_dav_controller.dart';
+import 'package:pure_live/common/services/settings/web_dav_controller.dart';
 
 class WebDavPage extends GetView<WebDavPageController> {
   WebDavPage({super.key});
