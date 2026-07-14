@@ -184,6 +184,11 @@ dependency_overrides:
   firebase_auth: 6.5.1
   cloud_firestore: 6.5.0
   firebase_core_platform_interface: 7.0.0
+  media_kit:
+    git:
+      url: https://github.com/Predidit/media-kit.git
+      ref: main
+      path: ./media_kit
 # 开发依赖
 dev_dependencies:
   flutter_test:
