@@ -989,4 +989,11 @@
     "backup_version": "备份版本",
     "tags": "标签",
     "config_modules": "配置模块"
+    "auto_backup_on_exit": "退出时自动备份",
+    "auto_backup_on_exit_subtitle": "退出应用时自动备份当前配置到本地",
+    "webdav_auto_sync": "自动同步",
+    "webdav_auto_sync_subtitle": "定时自动同步配置到 WebDAV 服务器",
+    "webdav_sync_interval": "同步间隔",
+    "day_unit": "天",
+    "hour_unit": "小时",
 }

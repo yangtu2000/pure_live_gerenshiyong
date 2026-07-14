@@ -989,4 +989,11 @@
     "backup_version": "Backup Version",
     "tags": "Tags",
     "config_modules": "Config Modules"
+    "auto_backup_on_exit": "Auto backup on exit",
+    "auto_backup_on_exit_subtitle": "Automatically backup config when exiting the app",
+    "webdav_auto_sync": "Auto sync",
+    "webdav_auto_sync_subtitle": "Periodically sync config to WebDAV server",
+    "webdav_sync_interval": "Sync interval",
+    "day_unit": "d",
+    "hour_unit": "h",
 }

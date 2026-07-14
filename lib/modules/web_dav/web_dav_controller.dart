@@ -29,6 +29,7 @@ class WebDavPageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _initAutoSync();
     // 从全局 WebDavController 读取配置
     configs.assignAll(_webDavController.webDavConfigs.v);
     if (_webDavController.currentWebDavConfig.v.isNotEmpty) {
