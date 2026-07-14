@@ -55,6 +55,12 @@ dependencies:
   loading_indicator: ^3.1.1
   flame_barrage: ^0.0.3
   # -------------------------- 音视频播放 --------------------------
+  window_manager: ">=0.5.1 <0.5.2"
+  screen_retriever:
+    git:
+      url: https://github.com/liuchuancong/screen_retriever.git
+      ref: master
+      path: packages/screen_retriever
   media_kit:
     git:
       url: https://github.com/Predidit/media-kit.git
@@ -184,6 +190,12 @@ dependency_overrides:
   firebase_auth: 6.5.1
   cloud_firestore: 6.5.0
   firebase_core_platform_interface: 7.0.0
+  window_manager: ">=0.5.1 <0.5.2"
+  screen_retriever:
+    git:
+      url: https://github.com/liuchuancong/screen_retriever.git
+      ref: master
+      path: packages/screen_retriever
   media_kit:
     git:
       url: https://github.com/Predidit/media-kit.git
