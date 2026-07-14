@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:pure_live/common/index.dart';
 import 'package:date_format/date_format.dart';
@@ -22,6 +23,8 @@ class WebDavPageController extends GetxController {
 
   final WebDavController _webDavController = Get.find<WebDavController>();
   final BackupController _backupController = Get.find<BackupController>();
+
+  Timer? _autoSyncTimer;
 
   @override
   void onInit() {
@@ -154,6 +157,46 @@ class WebDavPageController extends GetxController {
   }
 
   /// 上传配置到 WebDAV（走新备份系统）
+
+  void _initAutoSync() {
+    _tryAutoUpload();
+    _autoSyncTimer = Timer.periodic(const Duration(hours: 1), (_) {
+      _tryAutoUpload();
+    });
+    ever(_webDavController.autoWebDavSync, (enabled) {
+      if (enabled) _tryAutoUpload();
+    });
+  }
+
+  void _tryAutoUpload() {
+    if (!_webDavController.autoWebDavSync.v) return;
+    if (currentConfig.value == null || dirPath.value == '/') return;
+    final lastSyncStr = _webDavController.lastWebDavSyncTime.v;
+    final intervalHours = _webDavController.webDavSyncIntervalHours.v;
+    if (lastSyncStr.isNotEmpty) {
+      final lastSync = DateTime.tryParse(lastSyncStr);
+      if (lastSync != null) {
+        final elapsed = DateTime.now().difference(lastSync);
+        if (elapsed.inHours < intervalHours) return;
+      }
+    }
+    _performAutoUpload();
+  }
+
+  Future<void> _performAutoUpload() async {
+    try {
+      final dateStr = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss]);
+      final fileName = 'purelive_$dateStr.txt';
+      final data = _backupController.exportAllSettings();
+      final content = jsonEncode(data);
+      final bytes = utf8.encode(content);
+      if (dirPath.value == '/') return;
+      final remotePath = '${dirPath.value}$fileName';
+      await _webdavService.client.write(remotePath, bytes);
+      _webDavController.lastWebDavSyncTime.v = DateTime.now().toIso8601String();
+    } catch (_) {}
+  }
+
   void uploadConfigSettings() async {
     try {
       final dateStr = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss]);
@@ -171,6 +214,8 @@ class WebDavPageController extends GetxController {
 
       final remotePath = '${dirPath.value}$fileName';
       await _webdavService.client.write(remotePath, bytes);
+
+      _webDavController.lastWebDavSyncTime.v = DateTime.now().toIso8601String();
 
       SnackBarUtil.success(i18n("webdav_upload_success"));
       loadFiles();
@@ -202,5 +247,11 @@ class WebDavPageController extends GetxController {
     } catch (e) {
       SnackBarUtil.error('${i18n("webdav_download_failed")}: $e');
     }
+  }
+
+  @override
+  void onClose() {
+    _autoSyncTimer?.cancel();
+    super.onClose();
   }
 }

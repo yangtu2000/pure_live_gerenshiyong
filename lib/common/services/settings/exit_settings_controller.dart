@@ -1,13 +1,17 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:pure_live/get/get.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:pure_live/common/services/utils/hive_rx.dart';
+import 'package:pure_live/common/services/settings/backup_controller.dart';
 
 class ExitSettingsController extends GetxController {
   final RxBool dontAskExit = hiveBool('dontAskExit', false);
   final RxString exitChoose = hiveString('exitChoose', '');
   final RxInt autoShutDownTime = hiveInt('autoShutDownTime', 120);
   final RxBool enableAutoShutDownTime = hiveBool('enableAutoShutDownTime', false);
+  final RxBool autoBackupOnExit = hiveBool('autoBackupOnExit', false);
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown);
   StopWatchTimer get stopWatchTimer => _stopWatchTimer;
@@ -32,6 +36,7 @@ class ExitSettingsController extends GetxController {
 
     _stopWatchTimer.fetchEnded.listen((value) {
       _stopWatchTimer.onStopTimer();
+      _performAutoBackupBeforeExit();
       FlutterExitApp.exitApp();
     });
 
@@ -93,6 +98,22 @@ class ExitSettingsController extends GetxController {
   void setDontAskExit(bool value) {
     dontAskExit.v = value;
   }
+  void _performAutoBackupBeforeExit() {
+    if (!autoBackupOnExit.v) return;
+    try {
+      final backupController = Get.find<BackupController>();
+      final dir = backupController.backupDirectory.v;
+      if (dir.isEmpty) return;
+      final now = DateTime.now();
+      final timestamp = '${now.year}-${_pad(now.month)}-${_pad(now.day)}T${_pad(now.hour)}_${_pad(now.minute)}_${_pad(now.second)}';
+      final file = File('$dir/purelive_exit_$timestamp.txt');
+      backupController.backup(file);
+    } catch (_) {}
+  }
+
+  String _pad(int n) => n.toString().padLeft(2, '0');
+
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -100,6 +121,7 @@ class ExitSettingsController extends GetxController {
       'exitChoose': exitChoose.v,
       'autoShutDownTime': autoShutDownTime.v,
       'enableAutoShutDownTime': enableAutoShutDownTime.v,
+      'autoBackupOnExit': autoBackupOnExit.v,
     };
   }
 
@@ -108,6 +130,7 @@ class ExitSettingsController extends GetxController {
     exitChoose.v = json['exitChoose'] ?? '';
     autoShutDownTime.v = json['autoShutDownTime'] ?? 120;
     enableAutoShutDownTime.v = json['enableAutoShutDownTime'] ?? false;
+    autoBackupOnExit.v = json['autoBackupOnExit'] ?? false;
   }
 
   @override
@@ -123,6 +146,7 @@ class ExitSettingsController extends GetxController {
       'exitChoose': exit['exitChoose'] ?? '',
       'autoShutDownTime': exit['autoShutDownTime'] ?? 120,
       'enableAutoShutDownTime': exit['enableAutoShutDownTime'] ?? false,
+      'autoBackupOnExit': exit['autoBackupOnExit'] ?? false,
     };
   }
 

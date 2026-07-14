@@ -16,6 +16,11 @@ class WebDavController extends GetxController {
     },
   );
 
+  /// Auto sync settings
+  final RxBool autoWebDavSync = hiveBool('autoWebDavSync', false);
+  final RxInt webDavSyncIntervalHours = hiveInt('webDavSyncIntervalHours', 24);
+  final RxString lastWebDavSyncTime = hiveString('lastWebDavSyncTime', '');
+
   bool isWebDavConfigExist(String name) => webDavConfigs.v.any((e) => e.name == name);
 
   WebDAVConfig? getWebDavConfigByName(String name) => webDavConfigs.v.firstWhereOrNull((e) => e.name == name);
@@ -45,12 +50,18 @@ class WebDavController extends GetxController {
     return {
       'currentWebDavConfig': currentWebDavConfig.v,
       'webDavConfigs': webDavConfigs.v.map((e) => e.toJson()).toList(),
+      'autoWebDavSync': autoWebDavSync.v,
+      'webDavSyncIntervalHours': webDavSyncIntervalHours.v,
+      'lastWebDavSyncTime': lastWebDavSyncTime.v,
     };
   }
 
   void fromJson(Map<String, dynamic> json) {
     currentWebDavConfig.v = json['currentWebDavConfig'] ?? '';
     webDavConfigs.v = BackupMigrationUtil.parseObjectList(json['webDavConfigs'], (m) => WebDAVConfig.fromJson(m));
+    autoWebDavSync.v = json['autoWebDavSync'] ?? false;
+    webDavSyncIntervalHours.v = json['webDavSyncIntervalHours'] ?? 24;
+    lastWebDavSyncTime.v = json['lastWebDavSyncTime'] ?? '';
   }
 
   static Map<String, dynamic> extractConfig(Map<String, dynamic>? rootConfig) {
@@ -59,6 +70,9 @@ class WebDavController extends GetxController {
     return {
       'currentWebDavConfig': webdav['currentWebDavConfig'] ?? '',
       'webDavConfigs': list.map((e) => e.toJson()).toList(),
+      'autoWebDavSync': webdav['autoWebDavSync'] ?? false,
+      'webDavSyncIntervalHours': webdav['webDavSyncIntervalHours'] ?? 24,
+      'lastWebDavSyncTime': webdav['lastWebDavSyncTime'] ?? '',
     };
   }
 

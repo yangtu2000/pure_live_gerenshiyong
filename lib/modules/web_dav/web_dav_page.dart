@@ -167,7 +167,7 @@ class WebDavPage extends GetView<WebDavPageController> {
       backgroundColor: Theme.of(Get.context!).colorScheme.surface,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        slivers: [_buildAppBar(), _buildNavigationBar(), _buildBodyContent()],
+        slivers: [_buildAppBar(), _buildAutoSyncSection(context), _buildNavigationBar(), _buildBodyContent()],
       ),
       endDrawer: _buildDrawer(),
       floatingActionButton: FloatingActionButton(
@@ -347,6 +347,56 @@ class WebDavPage extends GetView<WebDavPageController> {
           color: isCurrent ? Theme.of(Get.context!).colorScheme.primary : Theme.of(Get.context!).colorScheme.onSurface,
           fontWeight: FontWeight.w500,
         ),
+      ),
+    );
+  }
+
+  Widget _buildAutoSyncSection(BuildContext context) {
+    final webDavCtrl = Get.find<WebDavController>();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            dense: true,
+            leading: Icon(Remix.cloud_line, size: 20, color: Theme.of(context).colorScheme.primary),
+            title: Text(i18n("webdav_auto_sync"), style: AppTextStyles.t14),
+            subtitle: Text(i18n("webdav_auto_sync_subtitle"), style: AppTextStyles.t12),
+            trailing: Obx(() => Switch(
+                  value: webDavCtrl.autoWebDavSync.v,
+                  onChanged: (val) => webDavCtrl.autoWebDavSync.v = val,
+                )),
+            onTap: () => webDavCtrl.autoWebDavSync.v = !webDavCtrl.autoWebDavSync.v,
+          ),
+          Obx(() {
+            if (!webDavCtrl.autoWebDavSync.v) return const SizedBox.shrink();
+            return ListTile(
+              dense: true,
+              leading: Icon(Remix.time_line, size: 20, color: Theme.of(context).colorScheme.primary),
+              title: Text(i18n("webdav_sync_interval"), style: AppTextStyles.t14),
+              trailing: DropdownButton<int>(
+                value: webDavCtrl.webDavSyncIntervalHours.v.clamp(1, 168),
+                underline: const SizedBox.shrink(),
+                items: [1, 2, 6, 12, 24, 48, 168].map((hours) => DropdownMenuItem(
+                  value: hours,
+                  child: Text(
+                    hours >= 24
+                        ? '${hours ~/ 24}${i18n("day_unit")}'
+                        : '${hours}${i18n("hour_unit")}',
+                    style: AppTextStyles.t14,
+                  ),
+                )).toList(),
+                onChanged: (val) {
+                  if (val != null) webDavCtrl.webDavSyncIntervalHours.v = val;
+                },
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

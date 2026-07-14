@@ -9,6 +9,7 @@ import 'package:pure_live/modules/auth/auth_controller.dart';
 import 'package:pure_live/common/global/app_path_manager.dart';
 import 'package:pure_live/plugins/backup_recovery_service.dart';
 import 'package:pure_live/common/services/settings/log_controller.dart';
+import 'package:pure_live/common/services/settings/exit_settings_controller.dart';
 
 class BackupPage extends StatefulWidget {
   const BackupPage({super.key});
@@ -44,6 +45,7 @@ class _BackupPageState extends State<BackupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final exitCtrl = Get.find<ExitSettingsController>();
     return Scaffold(
       appBar: AppBar(title: Text(i18n("backup_recover"))),
       body: Obx(() {
@@ -159,6 +161,16 @@ class _BackupPageState extends State<BackupPage> {
                 onTap: () async {
                   await BackupRecoveryService().updateBackupDirectory();
                 },
+              ),
+              context.buildTile(
+                icon: Remix.shut_down_line,
+                title: i18n("auto_backup_on_exit"),
+                subtitle: i18n("auto_backup_on_exit_subtitle"),
+                trailing: Switch(
+                  value: exitCtrl.autoBackupOnExit.v,
+                  onChanged: (val) => exitCtrl.autoBackupOnExit.v = val,
+                ),
+                onTap: () => exitCtrl.autoBackupOnExit.v = !exitCtrl.autoBackupOnExit.v,
               ),
             ]),
             const SizedBox(height: 20),
