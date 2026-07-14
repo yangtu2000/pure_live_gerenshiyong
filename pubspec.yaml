@@ -176,6 +176,10 @@ dependencies:
   app_links: 7.0.0
 # 依赖覆盖（强制指定版本）
 dependency_overrides:
+  firebase_core: 4.11.0
+  firebase_auth: 6.5.1
+  cloud_firestore: 6.5.0
+  firebase_core_platform_interface: 7.0.0
   wakelock_plus: ^1.4.0
   app_links: 7.0.0
   meta: 1.18.0
